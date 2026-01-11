@@ -66,14 +66,29 @@ Scheduler se gasi pozivom `shutdown()` i `awaitTermination()` nakon završetka s
 ---
 
 ## Primer izlaza programa
+
+**Periodična statistika:**
+```
+[STAT] found=8, indexed=3, queue=2, skipped={... }
+```
+
+**Consumer rezultati:**
+```
 Consumer-1 indeksirao 8 fajlova
-[STAT] found=0, indexed=0, queue=0, skipped={HIDDEN=0, EXT_NOT_ALLOWED=0, TOO_LARGE=0, IO_ERROR=0, NOT_A_FILE=0, DUPLICATE=0}
 Consumer-2 indeksirao 0 fajlova
-Consumer-4 indeksirao 0 fajlova
 Consumer-3 indeksirao 0 fajlova
+Consumer-4 indeksirao 0 fajlova
+```
+
+**Finalni rezultat:**
+```
 Završeno indeksiranje. Ukupno fajlova u indeksu: 8
-FINAL STATS: found=20, indexed=8, skipped={HIDDEN=0, EXT_NOT_ALLOWED=12, TOO_LARGE=0, IO_ERROR=0, NOT_A_FILE=0, DUPLICATE=0}
-Primer unosa iz indeksa:
-FileMeta{path='C:\Users\Admin\eclipse-workspace\FileIndexer\.\src\fileindexer\Indexer.java', size=2111, lastModified=1768094796979, ext='.java'}
-FileMeta{path='C:\Users\Admin\eclipse-workspace\FileIndexer\.\src\fileindexer\FileCrawler.java', size=2829, lastModified=1768134136074, ext='.java'}
-FileMeta{path='C:\Users\Admin\eclipse-workspace\FileIndexer\.\src\fileindexer\FileMeta.java', size=1045, lastModified=1768094797003, ext='.java'}
+FINAL STATS: found=20, indexed=8, skipped={EXT_NOT_ALLOWED=12, ostalo=0}
+```
+
+**Primeri indeksiranih datoteka:**
+```java
+FileMeta{path='C:\.. .\Indexer.java', size=2111, ext='.java'}
+FileMeta{path='C:\...\FileCrawler.java', size=2829, ext='.java'}
+FileMeta{path='C:\...\FileMeta.java', size=1045, ext='.java'}
+```
