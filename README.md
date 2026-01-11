@@ -13,7 +13,7 @@ Sistem koristi **Producer-Consumer pattern** za paralelno indeksiranje datoteka.
 - **FileMeta** - model koji čuva podatke o datoteci (putanja, veličina, vreme izmene, ekstenzija)
 - **Stats** - thread-safe statistika sa `LongAdder` brojačima
 - **SkipReason** - enum sa razlozima preskakanja (HIDDEN, EXT_NOT_ALLOWED, TOO_LARGE, IO_ERROR, NOT_A_FILE, DUPLICATE)
-- **Main** - orkestrator koji upravlja životnim ciklusom
+- **Main** - glavna klasa koja pokreće i kontroliše indeksiranje
 
 ### Thread-safe strukture: 
 
@@ -27,13 +27,12 @@ Sistem koristi **Producer-Consumer pattern** za paralelno indeksiranje datoteka.
 
 Indeksiraju se samo datoteke sa ekstenzijama `.txt`, `.java`, `.md` koje nisu sakrivene i manje su od 5 MB.
 
-## Dedupliciranje
+### Dedupliciranje
+**Strategija**: Apsolutna putanja
 
-**Strategija:** Kanonička putanja
+Koristi se File.getAbsolutePath() za identifikaciju datoteka. Svaka apsolutna putanja se čuva u thread-safe Set<String>, gde se atomično proverava i dodaje pomoću visited. add(absPath).
 
-Koristi se `File.getCanonicalPath()` koja razrešava sve simboličke linkove, `.` i `..` u jedinstvenu apsolutnu putanju.  Time se garantuje da ista fizička datoteka bude indeksirana samo jednom čak i ako joj se pristupa kroz različite putanje. 
-
-Implementacija koristi thread-safe `Set<String>` gde se atomično proverava i dodaje putanja.  Ako kanonička putanja već postoji, datoteka se preskače kao DUPLICATE.
+Ako putanja već postoji u setu, add() vraća false i datoteka se preskače kao DUPLICATE.
 
 ---
 
@@ -51,13 +50,6 @@ Sistem koristi **Poison Pill + CountDownLatch** mehanizam za korektno gašenje.
 
 4. **Finalizacija** - Main nit čeka sve consumer-e kroz `CountDownLatch consumersDone`, zatim gasi scheduler i ispisuje rezultate
 
-### Karakteristike:
-
-- Nema zaglavljivanja na `take()` jer svaki consumer dobija svoj poison pill
-- Nema busy-wait petlji - koriste se blocking operacije i barijere
-- Sve datoteke iz reda se obrađuju pre gašenja
-- Kooperativno gašenje bez `interrupt()` poziva
-
 ---
 
 ## Periodična statistika
@@ -69,7 +61,7 @@ Sistem koristi **Poison Pill + CountDownLatch** mehanizam za korektno gašenje.
 - `queue` - trenutna veličina reda
 - `skipped` - broj preskočenih datoteka po razlozima
 
-Scheduler se korektno gasi pozivom `shutdown()` i `awaitTermination()` nakon završetka svih consumer-a. 
+Scheduler se gasi pozivom `shutdown()` i `awaitTermination()` nakon završetka svih consumer-a. 
 
 ---
 
